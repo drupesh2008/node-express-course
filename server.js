@@ -4,10 +4,30 @@ const bodyParser = require('body-parser');
 
 app.use(bodyParser.json());
 
+// user details
 const mockUserData=[
-	{name:'Mark'},
-	{name:'Jill'}
+    {   
+        userId: '0',
+        name: 'Mark',
+        emailId: 'mark@gmail.com'
+    },
+    {   
+        userId: '1',
+        name: 'Jill',
+        emailId: 'jill@gmail.com'
+    },
 ];
+
+// To get userId from name to return additional details
+function getUserIdFromName (name) {
+    for (users in mockUserData) {
+         if (mockUserData[users].name === name) {
+             return mockUserData[users].userId;
+         }
+      }
+    
+    return "No such user";
+}
 
 app.get('/users',function(req,res){
 	res.json({
@@ -25,6 +45,31 @@ app.get('/users/:id',function(req,res){
 		message: 'got one user',
 		user: req.params.id
 	});
+});
+
+// get user details based on GET parameters
+app.get('/getUserDetails',function(req,res){
+    console.log(req.query.name);
+
+    if (typeof req.query.name === 'undefined') {
+        res.json({
+            Error: "Required parameters are missing, or invalid"
+        });
+    } else {
+        let id = getUserIdFromName(req.query.name);
+        
+        if (isNaN(id)) {
+            res.json({
+                Error: id
+            })
+        } else {
+            res.json({
+                success: true,
+                message: 'Got the required user',
+                user: mockUserData[id] 
+            });
+        }
+    }
 });
 
 app.post('/login',function(req,res){
